@@ -32,24 +32,24 @@ SAIDAS
     }
 '''
 
-def meta_to_divisao(dt_inicio, verbo, quant, unid, data_limite, periodo, dias_da_semana = [0]):
+def meta_to_divisao(dt_inicio, verbo, quant, unid, dt_limite, periodo, dias_da_semana = [0]):
     if(periodo == 'dia'):
-        meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, data_limite, dias_da_semana)
+        meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana)
     elif(periodo == 'semana'):
-        meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, data_limite)
+        meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, dt_limite)
     else:
         pass
 
-def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, data_limite, dias_da_semana):
-    data_limite = datetime.strptime(data_limite, '%Y-%m-%d')
+def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana):
+    dt_limite = datetime.strptime(dt_limite, '%Y-%m-%d')
     dt_inicio = datetime.strptime(dt_inicio, '%Y-%m-%d')
     
     dt_inicio = dt_inicio.toordinal()
-    data_limite = data_limite.toordinal()
+    dt_limite = dt_limite.toordinal()
     
     dict_dias_trabalho = {'restantes': 0,
                           'concluido': 0,
-                          'dt_limite': str(date.fromordinal(data_limite)),
+                          'dt_limite': str(date.fromordinal(dt_limite)),
                           'dias_da_semana': dias_da_semana,
                           'meta': quant,
                           'unidade': unid,
@@ -58,7 +58,7 @@ def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, data_limite, dias_da_s
                           'atualizado': str(date.today()),
                           'datas': {}
                           }
-    for i_ordi in range(dt_inicio, data_limite, 1):
+    for i_ordi in range(dt_inicio, dt_limite, 1):
         data_atual = date.fromordinal(i_ordi)
         dict_dias_trabalho['datas'][str(data_atual)] = {'feito': 0, 'meta_atingida': 0, 'dia_ativo': 0}
         if(data_atual.weekday() in dias_da_semana):
@@ -72,16 +72,16 @@ def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, data_limite, dias_da_s
     
     model_teste.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'dia')
 
-def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, data_limite):
-    data_limite = datetime.strptime(data_limite, '%Y-%m-%d')
+def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, dt_limite):
+    dt_limite = datetime.strptime(dt_limite, '%Y-%m-%d')
     dt_inicio = datetime.strptime(dt_inicio, '%Y-%m-%d')
     
     dt_inicio = dt_inicio.toordinal()
-    data_limite = data_limite.toordinal()
+    dt_limite = dt_limite.toordinal()
     
     dict_dias_trabalho = {'restantes': 0,
                           'concluido': 0,
-                          'dt_limite': str(date.fromordinal(data_limite)),
+                          'dt_limite': str(date.fromordinal(dt_limite)),
                           'meta': quant,
                           'unidade': unid,
                           'verbo': verbo,
@@ -90,7 +90,7 @@ def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, data_limite):
                           'datas': {}
                           }
     
-    for i_ordi in range(dt_inicio, data_limite, 1):
+    for i_ordi in range(dt_inicio, dt_limite, 1):
         data_atual = date.fromordinal(i_ordi)
         if(data_atual.weekday() == 0):#SE ESTE DIA FOR UMA SEGUNDA-FEIRA
             dict_dias_trabalho['datas'][str(data_atual)] = {'feito': 0, 'meta_atingida': 0}
