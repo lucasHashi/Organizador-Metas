@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>413</width>
-    <height>499</height>
+    <height>536</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -80,6 +80,9 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="text">
+           <string>traduzir</string>
+          </property>
          </widget>
         </item>
         <item row="2" column="0">
@@ -101,6 +104,12 @@
             <pointsize>11</pointsize>
            </font>
           </property>
+          <property name="maximum">
+           <double>10000000000.000000000000000</double>
+          </property>
+          <property name="value">
+           <double>15000.000000000000000</double>
+          </property>
          </widget>
         </item>
         <item row="3" column="0">
@@ -121,6 +130,9 @@
            <font>
             <pointsize>11</pointsize>
            </font>
+          </property>
+          <property name="text">
+           <string>palavras</string>
           </property>
          </widget>
         </item>
@@ -216,6 +228,9 @@
             <property name="text">
              <string>Quinta</string>
             </property>
+            <property name="tristate">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="2">
@@ -233,6 +248,9 @@
             </property>
             <property name="text">
              <string>Quarta</string>
+            </property>
+            <property name="tristate">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -306,6 +324,9 @@
             <property name="text">
              <string>Sexta</string>
             </property>
+            <property name="tristate">
+             <bool>false</bool>
+            </property>
            </widget>
           </item>
           <item row="0" column="1">
@@ -323,6 +344,9 @@
             </property>
             <property name="text">
              <string>Terça</string>
+            </property>
+            <property name="tristate">
+             <bool>false</bool>
             </property>
            </widget>
           </item>

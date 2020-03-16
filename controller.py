@@ -6,7 +6,7 @@ Created on Sun Mar  8 12:57:55 2020
 """
 
 from datetime import date, datetime, timezone
-import model_teste
+import model
 import pprint
 
 '''
@@ -32,6 +32,7 @@ SAIDAS
     }
 '''
 
+#--------------CADASTRAR--------------
 def meta_to_divisao(dt_inicio, verbo, quant, unid, dt_limite, periodo, dias_da_semana = [0]):
     if(periodo == 'dia'):
         meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana)
@@ -41,9 +42,6 @@ def meta_to_divisao(dt_inicio, verbo, quant, unid, dt_limite, periodo, dias_da_s
         pass
 
 def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana):
-    dt_limite = datetime.strptime(dt_limite, '%Y-%m-%d')
-    dt_inicio = datetime.strptime(dt_inicio, '%Y-%m-%d')
-    
     dt_inicio = dt_inicio.toordinal()
     dt_limite = dt_limite.toordinal()
     
@@ -70,12 +68,9 @@ def meta_to_divisao_diaria(dt_inicio, verbo, quant, unid, dt_limite, dias_da_sem
     
     pprint.pprint(dict_dias_trabalho)
     
-    model_teste.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'dia')
+    model.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'dia')
 
 def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, dt_limite):
-    dt_limite = datetime.strptime(dt_limite, '%Y-%m-%d')
-    dt_inicio = datetime.strptime(dt_inicio, '%Y-%m-%d')
-    
     dt_inicio = dt_inicio.toordinal()
     dt_limite = dt_limite.toordinal()
     
@@ -101,10 +96,71 @@ def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, dt_limite):
     
     pprint.pprint(dict_dias_trabalho)
     
-    model_teste.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'semana')
+    model.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'semana')
 
+#--------------LISTAR--------------
+def listar_metas(status):
+    #SELECT DAS METAS COM status == status
+    metas_status = model.select_metas_por_status(status)
+
+    metas_textos = []
+    for meta in metas_status:
+        data_final = datetime.strptime(meta['dt_limite'], '%Y-%m-%d')
+        
+        texto = '{} {} {} ate {}'.format(meta['verbo'], meta['meta'], meta['unidade'], data_final.strftime('%Y-%m-%d'))
+        metas_textos.append(texto)
+
+    return metas_textos
+
+def listar_fazer_hoje():
+    metas_andamento = model.select_metas_por_status(0)
+
+    #[[texto meta, quant hoje, quant feita]]
+    fazer_hoje = []
+    for meta in metas_andamento:
+        texto = '{} {} {}'.format(meta['verbo'], meta['meta'], meta['unidade'])
+        quant_hoje = meta['divisao']
+        quant_feita_hoje = meta['datas'][str(date.today())]['feito']
+        fazer_hoje.append([texto, quant_hoje, quant_feita_hoje])
+    
+    return fazer_hoje
+
+def listar_fazer_essa_semana():
+    metas_andamento = model.select_metas_por_status(0)
+
+    dias_dessa_semana = listar_dias_dessa_semana(str(date.today()))
+
+    #[[texto meta, quant semana, quant feita, meta final]]
+    fazer_essa_semana = []
+    for meta in metas_andamento:
+        texto = '{} {} {}'.format(meta['verbo'], meta['meta'], meta['unidade'])
+        quant_essa_semana = meta['divisao'] * len(meta['dias_da_semana'])
+
+        quant_feita_essa_semana = 0
+        for dia in dias_dessa_semana:
+            if(meta['datas'][dia]['dia_ativo']):
+                quant_feita_essa_semana += meta['datas'][dia]['feito']
+
+        fazer_essa_semana.append([texto, quant_essa_semana, quant_feita_essa_semana, meta['concluido'], meta['meta']])
+    
+    return fazer_essa_semana
+
+def listar_dias_dessa_semana(data):
+    #DIAS DESSA SEMANA: ['ano-mes-dia', 'ano-mes-dia', ...]
+    dia_base = datetime.strptime(data, '%Y-%m-%d')
+    dia_base_ord = date.toordinal(dia_base)
+    dia_semana = dia_base.weekday()
+
+    dias_semana = []
+    for dia_ord in range(dia_base_ord - dia_semana, dia_base_ord + 7 - dia_semana, 1):
+        dia_atual = date.fromordinal(dia_ord)
+        dias_semana.append(str(dia_atual))
+    
+    return dias_semana
+
+#--------------ATUALIZAR--------------
 def cadastra_progresso(cod, quant, data):
-    meta = model_teste.select_meta_por_codigo(cod)
+    meta = model.select_meta_por_codigo(cod)
     
     dados_do_dia = meta['datas'][data]
     
@@ -114,23 +170,23 @@ def cadastra_progresso(cod, quant, data):
     if(quant >= meta_diaria):
         dados_do_dia['meta_atingida'] = 1
     
-    model_teste.atualiza_dados_dia(cod, dados_do_dia, data)
+    model.atualiza_dados_dia(cod, dados_do_dia, data)
     
-    model_teste.atualiza_progresso_meta(cod, quant)
+    model.atualiza_progresso_meta(cod, quant)
 
 
 
 #--------------TESTES--------------
-model_teste.inicia_banco()
+#model.inicia_banco()
 
 #Juntar 10000 reais até 01/01/2023, me preocupando 1 dia por semana
-meta_to_divisao('2020-03-09', 'juntar', 10000, 'reais', '2023-01-01', 'semana')
+#meta_to_divisao('2020-03-09', 'juntar', 10000, 'reais', '2023-01-01', 'semana')
 
 #Traduzir 15000 palavras até 01/04/2020, me preocupando 5 dias por semana
-meta_to_divisao('2020-03-01','traduzir', 15000, 'palavras', '2020-04-01', 'dia', [0,1,2,3,4])
+#meta_to_divisao('2020-03-01','traduzir', 15000, 'palavras', '2020-04-01', 'dia', [0,1,2,3,4])
 
-cadastra_progresso(1, 1000, '2020-03-15')
-cadastra_progresso(0, 70, '2020-03-09')
+#cadastra_progresso(1, 1000, '2020-03-15')
+#cadastra_progresso(0, 70, '2020-03-09')
 
 
 
