@@ -8,6 +8,7 @@ Created on Mon Mar  9 22:35:30 2020
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets, uic
 import controller
+import pyqt5_aux
 
 qt_tela_inicial = "telas/principal.ui"
 Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_tela_inicial)
@@ -15,7 +16,8 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType(qt_tela_inicial)
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
-    switch_tela_cadastro_meta = QtCore.pyqtSignal()
+    switch_tela_cadastrar_meta = QtCore.pyqtSignal()
+    switch_tela_gerenciar_meta = QtCore.pyqtSignal(int)
 
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
@@ -33,50 +35,41 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.combo_status.currentIndexChanged.connect(self.carregar_list_metas_status)
 
-        self.btn_cadastrar_meta.pressed.connect(self.abrir_tela_resumo_geral)
+        self.btn_cadastrar_meta.pressed.connect(self.abrir_tela_cadastrar_meta)
+        #QUANDO DUPLOCLICAR EM UMA META DIARIA
+        self.tb_fazer_hoje.cellDoubleClicked.connect(self.abrir_tela_gerenciar_meta)
         self.btn_sair.pressed.connect(self.sair)
 
-        header = self.tb_fazer_hoje.horizontalHeader() 
-        self.tb_fazer_hoje.setHorizontalHeaderLabels(['Objetivo', 'Meta diaria', 'Feito hoje'])
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
+        colunas_fazer_essa_semana = ['Codigo', 'Objetivo', 'Meta diaria', 'Feito hoje']
+        pyqt5_aux.resize_colunas_table_widget(self.tb_fazer_hoje, colunas_fazer_essa_semana)
 
-        header = self.tb_fazer_essa_semana.horizontalHeader() 
-        self.tb_fazer_essa_semana.setHorizontalHeaderLabels(['Objetivo', 'Meta semanal', 'Feito essa semana', 'Total concluido', 'Meta final'])
-        header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(3, QtWidgets.QHeaderView.ResizeToContents)
-        header.setSectionResizeMode(4, QtWidgets.QHeaderView.ResizeToContents)
+        colunas_fazer_essa_semana = ['Objetivo', 'Meta semanal', 'Feito essa semana', 'Total concluido', 'Meta final']
+        pyqt5_aux.resize_colunas_table_widget(self.tb_fazer_essa_semana, colunas_fazer_essa_semana)
     
     def carregar_table_fazer_hoje(self):
         #[[texto meta, quant hoje, quant feita]]
         metas_fazer_hoje = controller.listar_fazer_hoje()
 
-        self.tb_fazer_hoje.setRowCount(0)
-        for linha in range(len(metas_fazer_hoje)):
-            self.tb_fazer_hoje.insertRow(linha)
-            for coluna in range(len(metas_fazer_hoje[0])):
-                self.tb_fazer_hoje.setItem(linha,coluna, QtWidgets.QTableWidgetItem(str(metas_fazer_hoje[linha][coluna])))
+        pyqt5_aux.carregar_dados_table_widget(self.tb_fazer_hoje, metas_fazer_hoje)
     
     def carregar_table_fazer_essa_semana(self):
         #[[texto meta, quant hoje, quant feita]]
         metas_fazer_essa_semana = controller.listar_fazer_essa_semana()
 
-        self.tb_fazer_essa_semana.setRowCount(0)
-        for linha in range(len(metas_fazer_essa_semana)):
-            self.tb_fazer_essa_semana.insertRow(linha)
-            for coluna in range(len(metas_fazer_essa_semana[0])):
-                self.tb_fazer_essa_semana.setItem(linha,coluna, QtWidgets.QTableWidgetItem(str(metas_fazer_essa_semana[linha][coluna])))
+        pyqt5_aux.carregar_dados_table_widget(self.tb_fazer_essa_semana, metas_fazer_essa_semana)
 
     def carregar_list_metas_status(self):
         self.list_metas.clear()
-        metas_em_andamento = controller.listar_metas(self.combo_status.currentIndex())
+        metas_em_andamento = controller.listar_metas_por_status(self.combo_status.currentIndex())
         self.list_metas.addItems(metas_em_andamento)
     
-    def abrir_tela_resumo_geral(self):
-        self.switch_tela_cadastro_meta.emit()
+    def abrir_tela_cadastrar_meta(self):
+        self.switch_tela_cadastrar_meta.emit()
+    
+    def abrir_tela_gerenciar_meta(self):
+        linha = self.tb_fazer_hoje.currentRow()
+        id_meta = self.tb_fazer_hoje.item(linha, 0)
+        self.switch_tela_gerenciar_meta.emit(int(id_meta.text()))
     
     def sair(self):
         self.close()

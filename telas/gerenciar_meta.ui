@@ -16,7 +16,7 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_4" stretch="2,14,5">
     <item>
-     <widget class="QLabel" name="label">
+     <widget class="QLabel" name="lbl_titulo">
       <property name="font">
        <font>
         <pointsize>21</pointsize>
@@ -26,7 +26,7 @@
        <enum>Qt::RightToLeft</enum>
       </property>
       <property name="text">
-       <string>Alterar meta</string>
+       <string>Gerenciar meta</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -41,7 +41,7 @@
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="lbl_data_inicial">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -62,7 +62,7 @@
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label_3">
+         <widget class="QLabel" name="lbl_verbo">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -86,7 +86,7 @@
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_4">
+         <widget class="QLabel" name="lbl_quantidade">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -113,7 +113,7 @@
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QLabel" name="label_5">
+         <widget class="QLabel" name="lbl_unidade">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -137,7 +137,7 @@
          </widget>
         </item>
         <item row="4" column="0">
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="lbl_data_final">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -158,7 +158,7 @@
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="lbl_periodo">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -186,7 +186,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout" stretch="1,5">
         <item>
-         <widget class="QLabel" name="label_8">
+         <widget class="QLabel" name="lbl_dias_semana">
           <property name="font">
            <font>
             <pointsize>13</pointsize>
@@ -354,7 +354,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <widget class="QPushButton" name="btn_alterar">
+         <widget class="QPushButton" name="btn_apagar">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -363,11 +363,11 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>17</pointsize>
+            <pointsize>15</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Alterar</string>
+           <string>Apagar meta</string>
           </property>
          </widget>
         </item>
@@ -388,7 +388,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Apagar essa meta e criar outra</string>
+           <string>Apagar meta e criar outra</string>
           </property>
          </widget>
         </item>
@@ -397,7 +397,7 @@
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QPushButton" name="btn_limpar">
+         <widget class="QPushButton" name="btn_alterar">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
             <horstretch>0</horstretch>
@@ -406,11 +406,11 @@
           </property>
           <property name="font">
            <font>
-            <pointsize>15</pointsize>
+            <pointsize>17</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>Apagar</string>
+           <string>Alterar</string>
           </property>
          </widget>
         </item>

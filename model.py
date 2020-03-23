@@ -22,6 +22,7 @@ def insert_nova_meta(dict_meta, dt_inicio, periodo):
     
     cod = db_json['prox_cod']
     db_json['prox_cod'] += 1
+    dict_meta['codigo'] = cod
     
     dt_criacao = str(date.today())
     status = 0
@@ -41,7 +42,7 @@ def select_meta_por_codigo(cod):
     with open('db/db_metas.json', 'r') as db_json_file:
         db_json = json.load(db_json_file)
     
-    meta = db_json['metas'][str(cod)]['meta']
+    meta = db_json['metas'][str(cod)]
     
     return meta
 
@@ -63,6 +64,27 @@ def select_metas_por_status(status):
     return metas_status
 
 #-----------UPDATES-----------
+def editar_meta(dict_meta, dt_inicio, periodo, id_meta):
+    with open('db/db_metas.json', 'r') as db_json_file:
+        db_json = json.load(db_json_file)
+    
+    cod = db_json['prox_cod']
+    db_json['prox_cod'] += 1
+    dict_meta['codigo'] = cod
+    
+    dt_criacao = str(date.today())
+    status = 0
+    dt_limite_inicial = dict_meta['dt_limite']
+    
+    meta = {'dt_inicio': dt_inicio, 'dt_criacao': dt_criacao, 'status': status,
+            'dt_limite_inicial': dt_limite_inicial, 'periodo': periodo,
+            'dt_fechamento': '', 'meta': dict_meta}
+    
+    db_json['metas'][str(cod)] = meta
+    
+    with open('db/db_metas.json', 'w') as db_json_file:
+        json.dump(db_json, db_json_file)
+
 def atualiza_dados_dia(cod, dados_atualizados_dia, data):
     with open('db/db_metas.json', 'r') as db_json_file:
         db_json = json.load(db_json_file)

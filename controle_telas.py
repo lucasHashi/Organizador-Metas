@@ -3,7 +3,8 @@ from PyQt5 import QtCore, QtWidgets, uic
 
 import view_principal
 
-import view_cadastro_meta
+import view_cadastrar_meta
+import view_gerenciar_meta
 
 class Controller:
 
@@ -12,12 +13,17 @@ class Controller:
 
     def abre_tela_principal(self):
         self.janela_view_principal = view_principal.MainWindow()
-        self.janela_view_principal.switch_tela_cadastro_meta.connect(self.abre_tela_cadastro_meta)
+        self.janela_view_principal.switch_tela_cadastrar_meta.connect(self.abre_tela_cadastrar_meta)
+        self.janela_view_principal.switch_tela_gerenciar_meta.connect(self.abre_tela_gerenciar_meta)
         self.janela_view_principal.show()
     
-    def abre_tela_cadastro_meta(self):
-        self.janela_tela_cadastro_meta = view_cadastro_meta.MainWindow()
-        self.janela_tela_cadastro_meta.show()
+    def abre_tela_cadastrar_meta(self):
+        self.janela_tela_cadastrar_meta = view_cadastrar_meta.MainWindow()
+        self.janela_tela_cadastrar_meta.show()
+    
+    def abre_tela_gerenciar_meta(self, id_meta):
+        self.janela_tela_gerenciar_meta = view_gerenciar_meta.MainWindow(id_meta)
+        self.janela_tela_gerenciar_meta.show()
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

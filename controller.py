@@ -8,6 +8,7 @@ Created on Sun Mar  8 12:57:55 2020
 from datetime import date, datetime, timezone
 import model
 import pprint
+from PyQt5 import QtCore
 
 '''
 ENTRADAS
@@ -99,7 +100,8 @@ def meta_to_divisao_semanal(dt_inicio, verbo, quant, unid, dt_limite):
     model.insert_nova_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'semana')
 
 #--------------LISTAR--------------
-def listar_metas(status):
+#VARIAS METAS
+def listar_metas_por_status(status):
     #SELECT DAS METAS COM status == status
     metas_status = model.select_metas_por_status(status)
 
@@ -118,10 +120,11 @@ def listar_fazer_hoje():
     #[[texto meta, quant hoje, quant feita]]
     fazer_hoje = []
     for meta in metas_andamento:
+        codigo = meta['codigo']
         texto = '{} {} {}'.format(meta['verbo'], meta['meta'], meta['unidade'])
         quant_hoje = meta['divisao']
         quant_feita_hoje = meta['datas'][str(date.today())]['feito']
-        fazer_hoje.append([texto, quant_hoje, quant_feita_hoje])
+        fazer_hoje.append([codigo, texto, quant_hoje, quant_feita_hoje])
     
     return fazer_hoje
 
@@ -145,6 +148,104 @@ def listar_fazer_essa_semana():
     
     return fazer_essa_semana
 
+def select_meta_completa(id_meta):
+    
+    return model.select_meta_por_codigo(id_meta)
+
+
+#--------------EDITAR--------------
+def editar_meta_to_divisao(meta_base, id_meta, dt_inicio, verbo, quant, unid, dt_limite, periodo, dias_da_semana = [0]):
+    if(periodo == 'dia'):
+        editar_meta_to_divisao_diaria(meta_base, id_meta, dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana)
+    elif(periodo == 'semana'):
+        editar_meta_to_divisao_semanal(meta_base, id_meta, dt_inicio, verbo, quant, unid, dt_limite)
+    else:
+        pass
+
+def editar_meta_to_divisao_diaria(meta_base, id_meta, dt_inicio, verbo, quant, unid, dt_limite, dias_da_semana):
+    dt_inicio = dt_inicio.toordinal()
+    dt_limite = dt_limite.toordinal()
+
+    concluido = meta_base['meta']['concluido']
+    
+    dict_dias_trabalho = {'restantes': 0,
+                          'concluido': concluido,
+                          'dt_limite': str(date.fromordinal(dt_limite)),
+                          'dias_da_semana': dias_da_semana,
+                          'meta': quant,
+                          'unidade': unid,
+                          'verbo': verbo,
+                          'divisao': 0,
+                          'atualizado': str(date.today()),
+                          'datas': {}
+                          }
+    for i_ordi in range(dt_inicio, dt_limite, 1):
+        data_atual = date.fromordinal(i_ordi)
+        dict_dias_trabalho['datas'][str(data_atual)] = {'feito': 0, 'meta_atingida': 0, 'dia_ativo': 0}
+        if(data_atual.weekday() in dias_da_semana):
+            dict_dias_trabalho['datas'][str(data_atual)]['dia_ativo'] = 1
+            dict_dias_trabalho['restantes'] += 1
+    
+    dias_restantes = dict_dias_trabalho['restantes']
+    dict_dias_trabalho['divisao'] = round(quant/dias_restantes, 2)
+    
+    pprint.pprint(dict_dias_trabalho)
+    
+    model.editar_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'dia', id_meta)
+
+def editar_meta_to_divisao_semanal(meta_base, id_meta, dt_inicio, verbo, quant, unid, dt_limite):
+    dt_inicio = dt_inicio.toordinal()
+    dt_limite = dt_limite.toordinal()
+    
+    dict_dias_trabalho = {'restantes': 0,
+                          'concluido': 0,
+                          'dt_limite': str(date.fromordinal(dt_limite)),
+                          'meta': quant,
+                          'unidade': unid,
+                          'verbo': verbo,
+                          'divisao': 0,
+                          'atualizado': str(date.today()),
+                          'datas': {}
+                          }
+    
+    for i_ordi in range(dt_inicio, dt_limite, 1):
+        data_atual = date.fromordinal(i_ordi)
+        if(data_atual.weekday() == 0):#SE ESTE DIA FOR UMA SEGUNDA-FEIRA
+            dict_dias_trabalho['datas'][str(data_atual)] = {'feito': 0, 'meta_atingida': 0}
+            dict_dias_trabalho['restantes'] += 1
+    
+    semanas_restantes = dict_dias_trabalho['restantes']
+    dict_dias_trabalho['divisao'] = round(quant/semanas_restantes, 2)
+    
+    pprint.pprint(dict_dias_trabalho)
+    
+    model.editar_meta(dict_dias_trabalho, str(date.fromordinal(dt_inicio)), 'semana', id_meta)
+
+#--------------UNICA META--------------
+def listar_meta_para_editar(id_meta):
+    #SELECT DA META DO CODIGO id_meta
+    meta_completa = model.select_meta_por_codigo(id_meta)
+
+    dt_inicio = meta_completa['dt_inicio']
+    verbo = meta_completa['meta']['verbo']
+    quantidade = meta_completa['meta']['meta']
+    unidade = meta_completa['meta']['unidade']
+    dt_final = meta_completa['meta']['dt_limite']
+    periodo = meta_completa['periodo']
+    dias_semana = meta_completa['meta']['dias_da_semana']
+
+    dt_inicio = QtCore.QDate.fromString(dt_inicio, 'yyyy-MM-dd')
+    dt_final = QtCore.QDate.fromString(dt_final, 'yyyy-MM-dd')
+    
+    if(periodo == 'dia'):
+        periodo = 'diaria'
+    elif(periodo == 'semana'):
+        periodo = 'semanal'
+
+    return dt_inicio, verbo, quantidade, unidade, dt_final, periodo, dias_semana
+    
+
+#--------------OUTROS--------------
 def listar_dias_dessa_semana(data):
     #DIAS DESSA SEMANA: ['ano-mes-dia', 'ano-mes-dia', ...]
     dia_base = datetime.strptime(data, '%Y-%m-%d')
